@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { SAMPLE_LEADS, type LeadStatus } from "@/lib/leads";
 
 const STATUS_STYLES: Record<LeadStatus, string> = {
@@ -6,7 +9,18 @@ const STATUS_STYLES: Record<LeadStatus, string> = {
   סגור: "bg-emerald-100 text-emerald-800",
 };
 
+type FilterOption = "הכל" | LeadStatus;
+
 export default function Home() {
+  const [activeFilter, setActiveFilter] = useState<FilterOption>("הכל");
+
+  const filteredLeads =
+    activeFilter === "הכל"
+      ? SAMPLE_LEADS
+      : SAMPLE_LEADS.filter((lead) => lead.status === activeFilter);
+
+  const filters: FilterOption[] = ["הכל", "חדש", "בטיפול", "סגור"];
+
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-slate-200 bg-white">
@@ -30,8 +44,29 @@ export default function Home() {
 
         <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 px-5 py-4">
-            <h2 className="text-lg font-semibold">לידים לדוגמה</h2>
-            <p className="text-sm text-slate-500">{SAMPLE_LEADS.length} רשומות</p>
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">לידים לדוגמה</h2>
+                <p className="text-sm text-slate-500">
+                  {filteredLeads.length} מתוך {SAMPLE_LEADS.length} רשומות
+                </p>
+              </div>
+              <div className="flex gap-2">
+                {filters.map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setActiveFilter(filter)}
+                    className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                      activeFilter === filter
+                        ? "bg-teal-700 text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-right text-sm">
@@ -45,7 +80,7 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {SAMPLE_LEADS.map((lead) => (
+                {filteredLeads.map((lead) => (
                   <tr key={lead.id} className="border-t border-slate-100">
                     <td className="px-5 py-3 font-medium text-slate-900">
                       {lead.name}
